@@ -12,7 +12,7 @@ class Spider:
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.browser = webdriver.Chrome(service_args=['--load-images=false', '--disk-cache=true'])
+        self.browser = webdriver.PhantomJS(service_args=['--load-images=false', '--disk-cache=true'])
         self.browser.set_window_size(1400, 900)
         self.wait = WebDriverWait(self.browser, 10)
 
