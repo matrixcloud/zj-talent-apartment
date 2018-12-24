@@ -7,6 +7,11 @@ from pyquery import PyQuery as pq
 import time
 from functions import send_email
 import os
+import logging
+from logging.config import fileConfig
+
+fileConfig('logging.ini')
+logger = logging.getLogger('app')
 
 class Spider:
     def __init__(self, username, password):
@@ -17,7 +22,7 @@ class Spider:
         self.wait = WebDriverWait(self.browser, 10)
 
     def login(self):
-        print('start to login')
+        logger.info('start to login')
         url = 'https://rcgy.zjhui.net/'
         self.browser.get(url)
         login_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login')))
@@ -29,13 +34,16 @@ class Spider:
         login_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login_btn')))
         time.sleep(2)
         login_btn.click()
-        goto_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#imgloginback')))
-        if goto_btn:
-            return True
+        try:
+            goto_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#imgloginback')))
+            if goto_btn:
+                return True
+        except TimeoutException as e:
+            logger.error("login failed")
         return False            
 
     def get_waiting_record(self):
-        print('start to get waiting record')
+        logger.info('start to get waiting record')
         url = 'https://rcgy.zjhui.net/System/WaitingRecord.aspx'
         self.browser.get(url)
         self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#ctl00_ctl00_ctl00_main_main_main_palPT')))
@@ -61,29 +69,28 @@ class Spider:
             'adjust': arr[30],
             'rank': arr[31],
         }
-        print(record)
+        logger.debug('record', record)
         return record
 
     def start(self):
-        print('spider is starting')
+        logger.info('spider is starting')
         if self.login():
             time.sleep(2)
             return self.get_waiting_record()
-        else:
-            print('login failed')
-
+        return None
 
 if __name__ == "__main__":
     zj_username = os.environ['ZJ_USERNAME']
     zj_pwd = os.environ['ZJ_PWD']
-    print('using username(%s) and password (%s) to login zj-system' % (zj_username, zj_pwd))
+    logger.debug('using username(%s) and password (%s) to login zj-system' % (zj_username, zj_pwd))
     spider = Spider(zj_username, zj_pwd)
     record = spider.start()
 
-    email_stmp_server = os.environ['EMAIL_SMTP_SERVER']
-    email_sender = os.environ['EMAIL_SENDER']
-    email_sender_pwd = os.environ['EMAIL_SENDER_PWD']
-    email_receiver = os.environ['EMAIL_RECEIVER']
-    print('using stmp server (%s), sender email (%s), sender password (%), receiver (%s)' %
-     (email_stmp_server, email_sender, email_sender_pwd, email_receiver))
-    send_email(email_stmp_server, email_sender, email_sender_pwd, [email_receiver], record)
+    if record:
+        email_stmp_server = os.environ['EMAIL_SMTP_SERVER']
+        email_sender = os.environ['EMAIL_SENDER']
+        email_sender_pwd = os.environ['EMAIL_SENDER_PWD']
+        email_receiver = os.environ['EMAIL_RECEIVER']
+        logger.debug('using stmp server (%s), sender email (%s), sender password (%s), receiver (%s)' %
+        (email_stmp_server, email_sender, email_sender_pwd, email_receiver))
+        send_email(email_stmp_server, email_sender, email_sender_pwd, [email_receiver], record)
