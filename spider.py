@@ -24,17 +24,17 @@ class Spider:
     def login(self):
         logger.info('start to login')
         url = 'https://rcgy.zjhui.net/'
-        self.browser.get(url)
-        login_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login')))
-        login_btn.click()
-        tel = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login_tel')))
-        tel.send_keys(self.username)
-        password = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login_password')))
-        password.send_keys(self.password)
-        login_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login_btn')))
-        time.sleep(2)
-        login_btn.click()
         try:
+            self.browser.get(url)
+            login_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login')))
+            login_btn.click()
+            tel = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login_tel')))
+            tel.send_keys(self.username)
+            password = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login_password')))
+            password.send_keys(self.password)
+            login_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#login_btn')))
+            time.sleep(2)
+            login_btn.click()
             goto_btn = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#imgloginback')))
             if goto_btn:
                 return True
@@ -69,7 +69,8 @@ class Spider:
             'adjust': arr[30],
             'rank': arr[31],
         }
-        logger.debug('record', record)
+        logger.debug('record: ')
+        logger.debug(record)
         return record
 
     def start(self):
