@@ -21,6 +21,7 @@ class Spider:
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--no-sandbox')
         self.browser = webdriver.Chrome(chrome_options=chrome_options, service_args=['--load-images=false', '--disk-cache=true'])
         self.browser.set_window_size(1400, 900)
         self.wait = WebDriverWait(self.browser, 10)
