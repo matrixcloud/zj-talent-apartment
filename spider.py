@@ -3,6 +3,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 from pyquery import PyQuery as pq
 import time
 from functions import send_email
@@ -17,7 +18,10 @@ class Spider:
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.browser = webdriver.PhantomJS(service_args=['--load-images=false', '--disk-cache=true'])
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        self.browser = webdriver.Chrome(chrome_options=chrome_options, service_args=['--load-images=false', '--disk-cache=true'])
         self.browser.set_window_size(1400, 900)
         self.wait = WebDriverWait(self.browser, 10)
 
